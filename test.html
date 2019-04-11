@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>History Tracker Test</title>
+    <style>
+        body > div {
+            margin-top: 48px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        Current History Cookie Object:
+        <div>
+            <pre><code id="historyCookieObject"></code></pre>
+        </div>
+    </div>
+    <div>
+        Current Pixel Data Object:
+        <div>
+            <pre><code id="pixelDataObject"></code></pre>
+        </div>
+    </div>
+    <div>
+        Pixel Tracker Gif Url:
+        <div>
+            <span id="pixelUrl"></span>
+        </div>
+    </div>
+    <div>
+        <button id="delete-cookies">Delete Cookies</button>
+    </div>
+
+    <script>
+        function getHistoryFromCookie(cookie) {
+            if (!cookie) {
+                return {};
+            }
+
+            var decodedCookie = decodeURIComponent(cookie);
+            return JSON.parse(decodedCookie);
+        }
+
+        function getCookie(cookieName) {
+            var cookies = document.cookie.split('; ');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookieParts = cookies[i].split('=');
+                if (cookieParts.length !== 2) {
+                    continue;
+                }
+
+                if (cookieParts[0] !== cookieName) {
+                    continue;
+                }
+
+                return cookieParts[1];
+            }
+        }
+
+        function setCookie(cookieName, cookieValue, expiresAfterDays) {
+            var expireDate = new Date();
+            expireDate.setTime(expireDate.getTime() + (expiresAfterDays * 24 * 60 * 60 * 1000));
+
+            document.cookie = cookieName + '=' + cookieValue + '; ' + 'expires=' + expireDate.toUTCString(); + '; path=/';
+        }
+
+        function onClickDeleteCookies() {
+            setCookie('history', '', -365);
+            window.location.reload();
+        }
+
+        var cookie = getCookie('history');
+        var cookieHistory = getHistoryFromCookie(cookie);
+        var formattedHistoryJson = JSON.stringify(cookieHistory, null, 4);
+        var historyCodeEl = document.getElementById('historyCookieObject');
+        historyCodeEl.innerHTML = formattedHistoryJson;
+
+        var pixelData = {
+            originHref: window.location.href,
+            history: cookieHistory
+        }
+        var formattedPixelDataJson = JSON.stringify(pixelData, null, 4);
+        var pixelCodeEl = document.getElementById('pixelDataObject');
+        pixelCodeEl.innerHTML = formattedPixelDataJson;
+
+        var pixelDataJson = JSON.stringify(pixelData);
+        var encodedPixelDataJson = encodeURIComponent(pixelDataJson);
+        var trackingPixelBaseUrl = '//example.com/pixel.gif';
+        var pixelSrc = trackingPixelBaseUrl + '?data=' + encodedPixelDataJson + '&i=' + new Date().getTime();
+        var pixelSrcEl = document.getElementById('pixelUrl');
+        pixelSrcEl.innerHTML = pixelSrc;
+
+        var deleteCookiesBtnEl = document.getElementById('delete-cookies');
+        deleteCookiesBtnEl.addEventListener('click', onClickDeleteCookies);
+    </script>
+</body>
+</html>

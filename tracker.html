@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+</head>
+<body>
+    <script>
+        var trackingPixelBaseUrl = '//example.com/pixel.gif';
+
+        window.addEventListener('message', onMessage);
+
+        function doTracking(originHref) {
+            var cookie = getCookie('history');
+            var history = getHistoryFromCookie(cookie);
+            var domain = getDomain(originHref);
+
+            if (!history[domain]) {
+                history[domain] = new Date().toUTCString();
+                setCookie('history', getCookieFromHistory(history), 365);
+            }
+
+            createTrackingPixel(originHref, history);
+        }
+
+        function createTrackingPixel(originHref, history) {
+            var pixelData = {
+                originHref: originHref,
+                history: history
+            }
+            var pixelDataJson = JSON.stringify(pixelData);
+            var encodedPixelDataJson = encodeURIComponent(pixelDataJson);
+            var pixelSrc = trackingPixelBaseUrl + '?data=' + encodedPixelDataJson + '&i=' + new Date().getTime();
+
+            var imgEl = document.createElement('img');
+            imgEl.setAttribute('src', pixelSrc);
+        }
+
+        function getHistoryFromCookie(cookie) {
+            if (!cookie) {
+                return {};
+            }
+
+            var decodedCookie = decodeURIComponent(cookie);
+            return JSON.parse(decodedCookie);
+        }
+
+        function getCookieFromHistory(history) {
+            var historyJson = JSON.stringify(history);
+            return encodeURIComponent(historyJson);
+        }
+
+        function getCookie(cookieName) {
+            var cookies = document.cookie.split('; ');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookieParts = cookies[i].split('=');
+                if (cookieParts.length !== 2) {
+                    continue;
+                }
+
+                if (cookieParts[0] !== cookieName) {
+                    continue;
+                }
+
+                return cookieParts[1];
+            }
+        }
+
+        function setCookie(cookieName, cookieValue, expiresAfterDays) {
+            var expireDate = new Date();
+            expireDate.setTime(expireDate.getTime() + (expiresAfterDays * 24 * 60 * 60 * 1000));
+
+            document.cookie = cookieName + '=' + cookieValue + '; ' + 'expires=' + expireDate.toUTCString(); + '; path=/';
+        }
+
+        function getDomain(href) {
+            return href.replace(/(https?:\/\/)?(www.)?/i, '')
+                       .split('/')[0];
+        }
+
+        function onMessage(e) {
+            if (!e.data || e.data[0] !== '{') {
+                return;
+            }
+
+            var data = JSON.parse(e.data);
+            if (!data.origin) {
+                return;
+            }
+
+            doTracking(data.origin);
+        }
+    </script>
+</body>
+</html>

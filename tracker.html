@@ -13,21 +13,21 @@
 
         function doTracking(originHref) {
             var cookie = getCookie('history');
-            var history = getHistoryFromCookie(cookie);
+            var cookieHistory = getHistoryFromCookie(cookie);
             var domain = getDomain(originHref);
 
-            if (!history[domain]) {
-                history[domain] = new Date().toUTCString();
-                setCookie('history', getCookieFromHistory(history), 365);
+            if (!cookieHistory[domain]) {
+                cookieHistory[domain] = new Date().toUTCString();
+                setCookie('history', getCookieFromHistory(cookieHistory), 365);
             }
 
-            createTrackingPixel(originHref, history);
+            createTrackingPixel(originHref, cookieHistory);
         }
 
-        function createTrackingPixel(originHref, history) {
+        function createTrackingPixel(originHref, cookieHistory) {
             var pixelData = {
                 originHref: originHref,
-                history: history
+                history: cookieHistory
             }
             var pixelDataJson = JSON.stringify(pixelData);
             var encodedPixelDataJson = encodeURIComponent(pixelDataJson);
@@ -46,8 +46,8 @@
             return JSON.parse(decodedCookie);
         }
 
-        function getCookieFromHistory(history) {
-            var historyJson = JSON.stringify(history);
+        function getCookieFromHistory(cookieHistory) {
+            var historyJson = JSON.stringify(cookieHistory);
             return encodeURIComponent(historyJson);
         }
 

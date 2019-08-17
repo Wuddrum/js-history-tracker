@@ -105,7 +105,10 @@
         var pixelDataJson = JSON.stringify(pixelData);
         var encodedPixelDataJson = encodeURIComponent(pixelDataJson);
         var trackingPixelBaseUrl = '//example.com/pixel.gif';
-        var pixelSrc = trackingPixelBaseUrl + '?data=' + encodedPixelDataJson + '&i=' + new Date().getTime();
+        var pixelSrc = trackingPixelBaseUrl
+                       + '?data=' + encodedPixelDataJson
+                       + '&id=' + id
+                       + '&i=' + new Date().getTime();
         var pixelSrcEl = document.getElementById('pixelUrl');
         pixelSrcEl.innerHTML = pixelSrc;
 

@@ -25,6 +25,12 @@
         </div>
     </div>
     <div>
+        Current History Id:
+        <div>
+            <span id="historyCookieId"></span>
+        </div>
+    </div>
+    <div>
         Current Pixel Data Object:
         <div>
             <pre><code id="pixelDataObject"></code></pre>
@@ -78,11 +84,15 @@
             window.location.reload();
         }
 
+        var id = getCookie('history_id');
         var cookie = getCookie('history');
         var cookieHistory = getHistoryFromCookie(cookie);
         var formattedHistoryJson = JSON.stringify(cookieHistory, null, 4);
         var historyCodeEl = document.getElementById('historyCookieObject');
         historyCodeEl.innerHTML = formattedHistoryJson;
+
+        var historyIdEl = document.getElementById('historyCookieId');
+        historyIdEl.innerHTML = id;
 
         var pixelData = {
             originHref: window.location.href,

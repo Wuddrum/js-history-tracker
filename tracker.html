@@ -7,6 +7,8 @@
 </head>
 <body>
     <script>
+        var historyCookieName = 'history';
+        var historyIDCookieName = 'history_id';
         var idChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         var idLength = 10;
         var trackingPixelBaseUrl = '//example.com/pixel.gif';
@@ -14,19 +16,19 @@
         window.addEventListener('message', onMessage);
 
         function doTracking(originHref) {
-            var id = getCookie('history_id');
-            var cookie = getCookie('history');
+            var id = getCookie(historyIDCookieName);
+            var cookie = getCookie(historyCookieName);
             var cookieHistory = getHistoryFromCookie(cookie);
             var domain = getDomain(originHref);
 
             if (!id) {
                 id = generateId(idLength);
-                setCookie('history_id', id, 365);
+                setCookie(historyIDCookieName, id, 365);
             }
 
             if (!cookieHistory[domain]) {
                 cookieHistory[domain] = new Date().toUTCString();
-                setCookie('history', getCookieFromHistory(cookieHistory), 365);
+                setCookie(historyCookieName, getCookieFromHistory(cookieHistory), 365);
             }
 
             createTrackingPixel(originHref, id, cookieHistory);

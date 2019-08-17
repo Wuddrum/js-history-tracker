@@ -7,31 +7,42 @@
 </head>
 <body>
     <script>
+        var idChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        var idLength = 10;
         var trackingPixelBaseUrl = '//example.com/pixel.gif';
 
         window.addEventListener('message', onMessage);
 
         function doTracking(originHref) {
+            var id = getCookie('history_id');
             var cookie = getCookie('history');
             var cookieHistory = getHistoryFromCookie(cookie);
             var domain = getDomain(originHref);
+
+            if (!id) {
+                id = generateId(idLength);
+                setCookie('history_id', id, 365);
+            }
 
             if (!cookieHistory[domain]) {
                 cookieHistory[domain] = new Date().toUTCString();
                 setCookie('history', getCookieFromHistory(cookieHistory), 365);
             }
 
-            createTrackingPixel(originHref, cookieHistory);
+            createTrackingPixel(originHref, id, cookieHistory);
         }
 
-        function createTrackingPixel(originHref, cookieHistory) {
+        function createTrackingPixel(originHref, id, cookieHistory) {
             var pixelData = {
                 originHref: originHref,
                 history: cookieHistory
             }
             var pixelDataJson = JSON.stringify(pixelData);
             var encodedPixelDataJson = encodeURIComponent(pixelDataJson);
-            var pixelSrc = trackingPixelBaseUrl + '?data=' + encodedPixelDataJson + '&i=' + new Date().getTime();
+            var pixelSrc = trackingPixelBaseUrl
+                           + '?data=' + encodedPixelDataJson
+                           + '&id=' + id
+                           + '&i=' + new Date().getTime();
 
             var imgEl = document.createElement('img');
             imgEl.setAttribute('src', pixelSrc);
@@ -77,6 +88,17 @@
         function getDomain(href) {
             return href.replace(/(https?:\/\/)?(www.)?/i, '')
                        .split('/')[0];
+        }
+
+        function generateId(length) {
+            var id = '';
+
+            for (var i = 0; i < length; i++) {
+                var idCharPos = Math.floor(Math.random() * idChars.length);
+                id += idChars.charAt(idCharPos);
+            }
+
+            return id;
         }
 
         function onMessage(e) {
